@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.clawworker">
+
+    <permission
+        android:name="com.example.clawworker.permission.CALL"
+        android:protectionLevel="normal" />
+
+    <uses-permission android:name="android.permission.INJECT_EVENTS" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+    <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+    <uses-permission android:name="android.permission.RETRIEVE_WINDOW_CONTENT" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.example.clawworker.permission.CALL" />
+
+    <application
+        android:label="ClawWorker"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:theme="@android:style/Theme.DeviceDefault"
+        android:persistent="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".ClawWorkerService"
+            android:exported="false" />
+        <receiver
+            android:name=".ClawCommandReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.clawworker.ACTION_CALL" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

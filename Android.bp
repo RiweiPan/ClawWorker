@@ -1,0 +1,43 @@
+android_app {
+    name: "ClawWorker",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    asset_dirs: [
+        "skills",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    privileged: true,
+    required: ["privapp-permissions-clawworker.xml"],
+    system_ext_specific: true,
+
+    static_libs: [
+        "gson",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-clawworker.xml",
+    sub_dir: "permissions",
+    src: "etc/privapp-permissions-clawworker.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+cc_binary {
+    name: "clawshell",
+    srcs: ["clawshell.cpp"],
+    stl: "libc++_static",
+    cflags: ["-std=c++17"],
+    system_ext_specific: true,
+}
