@@ -259,7 +259,7 @@ sh /sdcard/ClawWorkerSkills/claw_call.sh --file /sdcard/cw_req_t1.json 15
 ```
 
 ### query-ui
-- description: 读取 UI 索引文本并返回每个元素的坐标点
+- description: 读取 UI 索引文本（含层级缩进和可见文本元素）并返回每个元素的坐标点
 - action: `query_ui`
 - detail_doc: `./skills/query-ui.md`
 - params:
@@ -267,6 +267,7 @@ sh /sdcard/ClawWorkerSkills/claw_call.sh --file /sdcard/cw_req_t1.json 15
   - `screenshot_path` string 可选
   - `vision_enabled` boolean 可选
 - returns:
+  - `data.ui_dump`: 带层级缩进的 UI 文本索引，`·` 前缀为上下文行（无 index），编号行可交互
   - `data.ui_points[].center_x/center_y`: 可直接作为 click/long_press 的输入
   - `data.ui_points[].left/top/right/bottom`: 可用于生成 swipe 输入
 - example:

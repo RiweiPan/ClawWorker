@@ -10,7 +10,12 @@ public class UiTreeParser {
     public static UiParseResult parse(AccessibilityNodeInfo root, int screenW, int screenH,
                                       boolean visionEnabled, Bitmap screenshot) {
         if (root == null || screenW <= 0 || screenH <= 0) {
-            return new UiParseResult(new ArrayList<>(), "", null);
+            return new UiParseResult(new ArrayList<>(), "", null, "");
+        }
+        String packageName = "";
+        CharSequence pkg = root.getPackageName();
+        if (pkg != null) {
+            packageName = pkg.toString();
         }
         UiElement tree = buildElementTree(root);
         Rect screenBounds = new Rect(0, 0, screenW, screenH);
@@ -19,11 +24,13 @@ public class UiTreeParser {
                 : new DetailedFilter(true, true);
         UiElement filtered = filter.filter(tree, screenBounds);
         if (filtered == null) {
-            return new UiParseResult(new ArrayList<>(), "", visionEnabled ? screenshot : null);
+            return new UiParseResult(new ArrayList<>(), "", visionEnabled ? screenshot : null,
+                    packageName);
         }
         IndexedFormatter.FormatResult formatted = IndexedFormatter.format(filtered);
         Bitmap resultBitmap = visionEnabled ? screenshot : null;
-        return new UiParseResult(formatted.getElements(), formatted.getTextDump(), resultBitmap);
+        return new UiParseResult(formatted.getElements(), formatted.getTextDump(), resultBitmap,
+                packageName);
     }
 
     private static UiElement buildElementTree(AccessibilityNodeInfo node) {

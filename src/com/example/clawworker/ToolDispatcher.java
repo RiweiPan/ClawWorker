@@ -281,6 +281,7 @@ public class ToolDispatcher {
             response.status = "error";
             response.error_msg = "ui_tree_empty_after_retries";
             response.data.put("ui_dump", "");
+            response.data.put("package_name", result == null ? "" : result.getPackageName());
             response.data.put("element_count", 0);
             response.data.put("ui_points", new ArrayList<>());
             response.data.put("retry_attempts", attempts);
@@ -296,6 +297,7 @@ public class ToolDispatcher {
         }
         response.status = "success";
         response.data.put("ui_dump", result == null ? "" : result.getTextDump());
+        response.data.put("package_name", result == null ? "" : result.getPackageName());
         response.data.put("element_count", result == null || result.getElements() == null
                 ? 0 : result.getElements().size());
         response.data.put("ui_points", buildUiPoints(result));
@@ -334,7 +336,7 @@ public class ToolDispatcher {
 
     private UiParseResult buildUiParseResult(boolean visionEnabled, Bitmap screenshot) {
         if (uiTreeManager == null || !uiTreeManager.init()) {
-            return new UiParseResult(new ArrayList<>(), "", null);
+            return new UiParseResult(new ArrayList<>(), "", null, "");
         }
         int[] size = getDisplaySize();
         int width = size[0];
