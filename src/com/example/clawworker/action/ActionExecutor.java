@@ -4,6 +4,7 @@ import com.example.clawworker.parser.UiElement;
 import com.example.clawworker.parser.UiParseResult;
 import com.example.clawworker.tools.CalendarReminderTool;
 import com.example.clawworker.tools.ClickTool;
+import com.example.clawworker.tools.ClipboardTool;
 import com.example.clawworker.tools.CurrentTimeTool;
 import com.example.clawworker.tools.InputTool;
 import com.example.clawworker.tools.KeyEventTool;
@@ -24,13 +25,14 @@ public class ActionExecutor {
     private final SetAlarmTool setAlarmTool;
     private final CurrentTimeTool currentTimeTool;
     private final CalendarReminderTool calendarReminderTool;
+    private final ClipboardTool clipboardTool;
     private final WaitTool waitTool;
 
     public ActionExecutor(ClickTool clickTool, InputTool inputTool, SwipeTool swipeTool,
                           LongPressTool longPressTool, OpenAppTool openAppTool,
                           KeyEventTool keyEventTool, SetAlarmTool setAlarmTool,
                           CurrentTimeTool currentTimeTool, CalendarReminderTool calendarReminderTool,
-                          WaitTool waitTool) {
+                          ClipboardTool clipboardTool, WaitTool waitTool) {
         this.clickTool = clickTool;
         this.inputTool = inputTool;
         this.swipeTool = swipeTool;
@@ -40,6 +42,7 @@ public class ActionExecutor {
         this.setAlarmTool = setAlarmTool;
         this.currentTimeTool = currentTimeTool;
         this.calendarReminderTool = calendarReminderTool;
+        this.clipboardTool = clipboardTool;
         this.waitTool = waitTool;
     }
 
@@ -106,6 +109,18 @@ public class ActionExecutor {
 
     public ActionResult waitMillis(long milliseconds) {
         return waitTool.waitMillis(milliseconds);
+    }
+
+    public ActionResult setClipboard(String text) {
+        return clipboardTool.setText(text);
+    }
+
+    public ActionResult clipboardPaste() {
+        return clipboardTool.paste();
+    }
+
+    public ActionResult clipboardPasteAt(float x, float y) {
+        return clipboardTool.pasteAt(x, y);
     }
 
     private UiElement findElement(UiParseResult result, int index) {

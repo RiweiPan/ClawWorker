@@ -16,6 +16,7 @@ import com.example.clawworker.parser.UiTreeManager;
 import com.example.clawworker.parser.UiTreeParser;
 import com.example.clawworker.tools.CalendarReminderTool;
 import com.example.clawworker.tools.ClickTool;
+import com.example.clawworker.tools.ClipboardTool;
 import com.example.clawworker.tools.CurrentTimeTool;
 import com.example.clawworker.tools.InputInjector;
 import com.example.clawworker.tools.InputTool;
@@ -69,10 +70,11 @@ public class ToolDispatcher {
         SetAlarmTool setAlarmTool = new SetAlarmTool(context);
         CurrentTimeTool currentTimeTool = new CurrentTimeTool();
         CalendarReminderTool calendarReminderTool = new CalendarReminderTool(context);
+        ClipboardTool clipboardTool = new ClipboardTool(context, injector);
         WaitTool waitTool = new WaitTool();
         actionExecutor = new ActionExecutor(clickTool, inputTool, swipeTool, longPressTool,
                 openAppTool, keyEventTool, setAlarmTool, currentTimeTool, calendarReminderTool,
-                waitTool);
+                clipboardTool, waitTool);
     }
 
     public ClawResponse handleRequest(String json) {
@@ -116,6 +118,10 @@ public class ToolDispatcher {
                 return handleScreenCapture(request, params);
             case "query_ui":
                 return handleQueryUi(request, params);
+            case "clipboard_set":
+                return handleClipboardSet(request, params);
+            case "clipboard_paste":
+                return handleClipboardPaste(request, params);
             default:
                 return errorResponse(request.id, "unknown_action");
         }
@@ -303,6 +309,23 @@ public class ToolDispatcher {
             screenshot.recycle();
         }
         return response;
+    }
+
+    private ClawResponse handleClipboardSet(ClawRequest request, Map<String, Object> params) {
+        String text = getString(params, "text", "");
+        ActionResult actionResult = actionExecutor.setClipboard(text);
+        return buildActionResponse(request, actionResult);
+    }
+
+    private ClawResponse handleClipboardPaste(ClawRequest request, Map<String, Object> params) {
+        if (hasKey(params, "x") && hasKey(params, "y")) {
+            float x = getFloat(params, "x", -1f);
+            float y = getFloat(params, "y", -1f);
+            ActionResult actionResult = actionExecutor.clipboardPasteAt(x, y);
+            return buildActionResponse(request, actionResult);
+        }
+        ActionResult actionResult = actionExecutor.clipboardPaste();
+        return buildActionResponse(request, actionResult);
     }
 
     private boolean hasUiElements(UiParseResult result) {

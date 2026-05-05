@@ -19,3 +19,4 @@
 - system-status.md
 - screen-capture.md
 - query-ui.md
+- clipboard.md

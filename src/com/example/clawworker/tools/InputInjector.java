@@ -205,6 +205,56 @@ public class InputInjector {
         return downResult && upResult;
     }
 
+    public boolean injectPaste() {
+        long downTime = SystemClock.uptimeMillis();
+        boolean ctrlDown = injectKeyEvent(new KeyEvent(
+                downTime, downTime, KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_CTRL_LEFT, 0, 0,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                InputDevice.SOURCE_KEYBOARD));
+        long eventTime = SystemClock.uptimeMillis();
+        boolean vDown = injectKeyEvent(new KeyEvent(
+                downTime, eventTime, KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_V, 0, KeyEvent.META_CTRL_ON,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                InputDevice.SOURCE_KEYBOARD));
+        long upTime = SystemClock.uptimeMillis();
+        boolean vUp = injectKeyEvent(new KeyEvent(
+                downTime, upTime, KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_V, 0, KeyEvent.META_CTRL_ON,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                InputDevice.SOURCE_KEYBOARD));
+        long ctrlUpTime = SystemClock.uptimeMillis();
+        boolean ctrlUp = injectKeyEvent(new KeyEvent(
+                downTime, ctrlUpTime, KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_CTRL_LEFT, 0, 0,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0,
+                InputDevice.SOURCE_KEYBOARD));
+        boolean ok = ctrlDown && vDown && vUp && ctrlUp;
+        if (!ok) {
+            ok = injectPasteByShell();
+        }
+        return ok;
+    }
+
+    private boolean injectPasteByShell() {
+        Process process = null;
+        try {
+            process = new ProcessBuilder("/system/bin/input", "keyevent", "279").start();
+            int code = process.waitFor();
+            return code == 0;
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            return false;
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
+        }
+    }
+
     public boolean clearText() {
         long downTime = SystemClock.uptimeMillis();
         boolean ctrlDown = injectKeyEvent(new KeyEvent(

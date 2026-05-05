@@ -274,6 +274,29 @@ sh /sdcard/ClawWorkerSkills/claw_call.sh --file /sdcard/cw_req_t1.json 15
 {"id":"14","action":"query_ui","params":{"include_screenshot":true,"screenshot_path":"/data/local/tmp/ui.png","vision_enabled":true}}
 ```
 
+### clipboard-set
+- description: 将文本写入系统剪贴板，支持任意 Unicode 文本包括中文
+- action: `clipboard_set`
+- detail_doc: `./skills/clipboard.md`
+- params:
+  - `text` string 必填
+- example:
+```json
+{"id":"15","action":"clipboard_set","params":{"text":"你好世界"}}
+```
+
+### clipboard-paste
+- description: 通过 Ctrl+V 粘贴剪贴板内容，可选先点击坐标获取焦点
+- action: `clipboard_paste`
+- detail_doc: `./skills/clipboard.md`
+- params:
+  - `x` number 可选
+  - `y` number 可选
+- example:
+```json
+{"id":"16","action":"clipboard_paste","params":{"x":540,"y":1180}}
+```
+
 ## skills/call 映射约定
 
 如果 OpenClaw 使用统一的 `skills/call` 调用形式，可按以下方式映射到 ClawWorker 请求体：
