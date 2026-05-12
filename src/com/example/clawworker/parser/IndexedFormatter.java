@@ -11,6 +11,7 @@ public class IndexedFormatter {
         List<UiElement> flat = new ArrayList<>();
         StringBuilder dump = new StringBuilder();
         if (root != null) {
+            root = TreePreprocessor.mergeAdjacentText(root);
             formatRecursive(root, flat, dump, 0, 0);
         }
         return new FormatResult(flat, dump.toString());
@@ -26,8 +27,7 @@ public class IndexedFormatter {
         int nextIndex = index;
 
         if (skipSelf) {
-            // Container is clickable but children already provide interaction points;
-            // don't emit this node, process children at the same depth.
+            // Container is clickable but children already provide interaction points
         } else if (interactive || (hasText && isLeaf)) {
             node.setIndex(nextIndex);
             flat.add(node);
@@ -37,12 +37,46 @@ public class IndexedFormatter {
             appendLine(dump, depth, -1, node);
         }
 
-        int childDepth = skipSelf ? depth : depth + 1;
-        for (UiElement child : node.getChildren()) {
-            nextIndex = formatRecursive(child, flat, dump, childDepth, nextIndex);
+        // Check if children form a card group
+        TreePreprocessor.CardGroupResult cardGroup =
+                TreePreprocessor.detectCardGroup(node.getChildren());
+
+        if (cardGroup != null && cardGroup.isCardGroup) {
+            for (int i = 0; i < node.getChildren().size(); i++) {
+                UiElement child = node.getChildren().get(i);
+                if (cardGroup.cardPositions.contains(i)) {
+                    String title = cardGroup.cardTitles.get(i);
+                    nextIndex = formatCard(child, flat, dump, depth, nextIndex, title);
+                } else {
+                    int cd = skipSelf ? depth : depth + 1;
+                    nextIndex = formatRecursive(child, flat, dump, cd, nextIndex);
+                }
+            }
+        } else {
+            int childDepth = skipSelf ? depth : depth + 1;
+            for (UiElement child : node.getChildren()) {
+                nextIndex = formatRecursive(child, flat, dump, childDepth, nextIndex);
+            }
         }
 
         return nextIndex;
+    }
+
+    private static int formatCard(UiElement card, List<UiElement> flat,
+                                  StringBuilder dump, int depth, int nextIndex,
+                                  String title) {
+        // Card separator
+        indent(dump, depth);
+        dump.append("--- ").append(title).append(" ---\n");
+
+        // Merge same-row tags within the card
+        List<UiElement> children = TreePreprocessor.mergeCardTags(card.getChildren());
+
+        int idx = nextIndex;
+        for (UiElement child : children) {
+            idx = formatRecursive(child, flat, dump, depth + 1, idx);
+        }
+        return idx;
     }
 
     private static boolean hasVisibleText(UiElement node) {
@@ -72,9 +106,7 @@ public class IndexedFormatter {
     }
 
     private static void appendLine(StringBuilder dump, int depth, int index, UiElement node) {
-        for (int i = 0; i < depth; i++) {
-            dump.append(INDENT);
-        }
+        indent(dump, depth);
         if (index >= 0) {
             dump.append(index).append(". ");
         } else {
@@ -99,6 +131,12 @@ public class IndexedFormatter {
             return "";
         }
         return text;
+    }
+
+    private static void indent(StringBuilder dump, int depth) {
+        for (int i = 0; i < depth; i++) {
+            dump.append(INDENT);
+        }
     }
 
     private static String boundsStr(UiElement node) {
